@@ -1,11 +1,10 @@
-// 绯夜 · CRIMSON NIGHT —— Cloudflare Pages 高级模式 Worker
-// 作用：把 /api /api2 /api3 三个路径同源反代到采集源（浏览器直连会被跨域拦，必须由边缘代转）
-// 其余所有请求原样交给静态资源。
+// 绯夜 · CRIMSON NIGHT —— 修复路径拦截版本
 
 const UPSTREAM = {
-  '/api': 'https://apiyutu.com/api.php/provide/vod/',
-  '/api2': 'https://lbapi9.com/api.php/provide/vod/',
-  '/api3': 'https://slapibf.com/api.php/provide/vod/',
+  // 注意：这里把路径后面的斜杠也写进去，强制匹配
+  '/api/': 'https://apiyutu.com/api.php/provide/vod/',
+  '/api2/': 'https://lbapi9.com/api.php/provide/vod/',
+  '/api3/': 'https://slapibf.com/api.php/provide/vod/',
 };
 
 const UA =
@@ -22,7 +21,8 @@ const JSON_HEADERS = {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    const path = url.pathname.replace(/\/+$/, '') || '/';
+    // 不再替换掉末尾斜杠，直接原样匹配
+    const path = url.pathname;
     const base = UPSTREAM[path];
 
     // 不是接口请求 -> 交给静态资源（html/css/js/图片）
